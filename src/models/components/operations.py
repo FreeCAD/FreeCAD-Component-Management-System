@@ -23,6 +23,8 @@ from src.models.users.models import User
 
 from ...authentication.utils import decode_auth_token
 from ...log import logger
+from ..licenses import SPDX
+from ..licenses.schemas import spdx_schema
 from ..attributes import Attribute
 from ..files import File, FileType
 from ..files.operations import upload_to_github
@@ -110,6 +112,10 @@ def read(
     for component, metadata in zip(components_resp.get("items"), metadata_resp):
         component["metadata"] = metadata
         component["id"] = metadata["id"]
+        if not component.get("license"):
+            # query for license from metadata[license_id] and set it to component["license"]
+            license = SPDX.query.filter(SPDX.id == metadata["license_id"]).one_or_none()
+            component["license"] = spdx_schema.dump(license)
 
     return components_resp, 200
 
@@ -133,7 +139,7 @@ def create(component_data: dict):
     This function creates a component by creating metadata, adding tags, and uploading to GitHub. It returns the component response along with the HTTP status code.
     """
 
-    token = request.headers.get("Token")
+    token = request.headers.get("JWT")
     logger.debug(f"{token=}")
     if not token:
         return "token not found", 498

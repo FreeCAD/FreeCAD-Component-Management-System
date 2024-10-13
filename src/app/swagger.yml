@@ -20,7 +20,6 @@ components:
         label:
           type: "string"
           maxLength: 20
-          pattern: ^[a-zA-Z0-9_]+$
 
     Filedata:
       type: "object"
@@ -33,11 +32,9 @@ components:
         url:
           type: "string"
           maxLength: 200
-          pattern: https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)
         metadata_id:
           type: "string"
-          maxLength: 32
-          pattern: ^\w{32}$
+          maxLength: 64
         type:
           type: "string"
           enum:
@@ -63,60 +60,50 @@ components:
       properties:
         name:
           type: "string"
-          pattern: ^[\w ]+$
           maxLength: 50
         version:
           type: "string"
-          pattern: ^[\d.]+$
           maxLength: 20
         maintainer:
           type: "string"
-          pattern: ([a-zA-Z0-9+._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9_-]+)
           maxLength: 50
         author:
           type: "string"
-          pattern: ([a-zA-Z0-9+._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9_-]+)
           maxLength: 50
         thumbnail:
           type: "string"
-          pattern: https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)
           maxLength: 200
         description:
           type: "string"
-          pattern: ^[\w ]+$
           maxLength: 500
         rating:
           type: "integer"
           maximum: 5
           minimum: 0
-          format: int32
+          format: int64
         license_id:
           type: "string"
-          maxLength: 32
-          pattern: ^\w{32}$
+          maxLength: 64
 
     Tags:
       type: "array"
       additionalProperties: false
       items:
         type: "string"
-        # pattern: ^[a-zA-Z0-9_]+$
-        maxLength: 32
-      example: ["laptop", "monitor"]
+        maxLength: 64
+      example: ["displays", "tft"]
       uniqueItems: true
-      maxItems: 32
+      maxItems: 64
 
     Attribute:
       type: "object"
       properties:
         key:
           type: "string"
-          # pattern: ^[a-zA-Z0-9_]+$
-          maxLength: 32
+          maxLength: 64
         value:
           type: "string"
-          # pattern: ^[a-zA-Z0-9_]+$
-          maxLength: 32
+          maxLength: 64
       additionalProperties: false
 
     Attributes:
@@ -124,7 +111,7 @@ components:
       additionalProperties: false
       items:
         $ref: "#/components/schemas/Attribute"
-      maxItems: 32
+      maxItems: 64
 
     Component:
       type: "object"
@@ -148,38 +135,30 @@ components:
           $ref: "#/components/schemas/File"
         repository:
           type: string
-          pattern: ^[\w -_]+$
           maxLength: 40
         branch:
           type: string
-          pattern: ^[\w ]+$
           maxLength: 62
         tags:
           $ref: "#/components/schemas/Tags"
         name:
           type: "string"
-          pattern: ^[\w ]+$
           maxLength: 50
         version:
           type: "string"
-          pattern: ^[\d.]+$
           maxLength: 20
         maintainer:
           type: "string"
-          pattern: ([a-zA-Z0-9+._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9_-]+)
           maxLength: 50
         author:
           type: "string"
-          pattern: ([a-zA-Z0-9+._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9_-]+)
           maxLength: 50
         description:
           type: "string"
-          # pattern: ^[\w ]+$
           maxLength: 500
         license_id:
           type: "string"
-          maxLength: 32
-          pattern: ^\w{32}$
+          maxLength: 64
         attributes:
           $ref: "#/components/schemas/Attributes"
 
@@ -208,16 +187,13 @@ components:
           $ref: "#/components/schemas/File"
         repository:
           type: string
-          pattern: ^[\w ]+$
           maxLength: 40
         branch:
           type: string
-          pattern: ^[\w ]+$
           maxLength: 62
         metadata_id:
           type: string
-          maxLength: 32
-          pattern: ^\w{32}$
+          maxLength: 64
 
   parameters:
 
@@ -229,7 +205,6 @@ components:
       schema:
         type: "string"
         example: "cable"
-        pattern: ^[\w ]+$
         maxLength: 100
 
     pk:
@@ -239,8 +214,7 @@ components:
       required: True
       schema:
         type: "string"
-        maxLength: 32
-        pattern: ^\w{32}$
+        maxLength: 64
 
     page:
       name: "page"
@@ -264,7 +238,7 @@ components:
         example: 4
         maximum: 100
         minimum: 1
-        format: int32
+        format: int64
 
     sort_by:
       name: "sort_by"
@@ -274,8 +248,7 @@ components:
       schema:
         type: "string"
         example: "name"
-        pattern: ^[\w]+$
-        maxLength: 32
+        maxLength: 64
 
     sort_ord:
       name: "sort_ord"
@@ -298,9 +271,8 @@ components:
         type: "array"
         items:
           type: string
-          pattern: ^[a-zA-Z0-9_]+$
-          maxLength: 32
-        maxItems: 32
+          maxLength: 64
+        maxItems: 64
       # collectionFormat: multi
 
     columns:
@@ -312,8 +284,7 @@ components:
         type: "array"
         items:
           type: string
-          pattern: ^[\w ]+$
-          maxLength: 32
+          maxLength: 64
         maxItems: 10
       # collectionFormat: multi
 
@@ -326,8 +297,7 @@ components:
         type: "array"
         items:
           type: string
-          pattern: ^[\w ]+$
-          maxLength: 32
+          maxLength: 64
         maxItems: 20
       # collectionFormat: multi
 
@@ -672,7 +642,11 @@ paths:
       parameters:
         - in: header
           name: X-Access-Token
-          description: "github access token"
+          description: "Github Access Token"
+          schema:
+            type: string
+        - in: header
+          name: JWT
           schema:
             type: string
       requestBody:
@@ -686,6 +660,22 @@ paths:
       responses:
         "201":
           description: "Successfully created a Component"
+
+  /component/user:
+    get:
+      operationId: "src.models.users.operations.read_user_components"
+      tags:
+        - "Component"
+        - "User"
+      summary: "Returns al the user owned components"
+      parameters:
+        - in: header
+          name: JWT
+          schema:
+            type: string
+      responses:
+        "200":
+          description: "ok"
 
   /auth/github:
     get:

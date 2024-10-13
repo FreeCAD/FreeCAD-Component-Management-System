@@ -18,6 +18,11 @@ from ...log import logger
 
 
 @lru_cache
+def github(access_token):
+    return Github(access_token)
+
+
+@lru_cache
 def get_repository(access_token, repository) -> Repository.Repository:
     """
     Returns a repository object for the given access token and repository name.
@@ -40,7 +45,7 @@ def get_repository(access_token, repository) -> Repository.Repository:
         ```
     """
 
-    g = Github(access_token)
+    g = github(access_token)
     return g.get_user().get_repo(repository)
 
 
