@@ -33,6 +33,7 @@ class MetadataSchema(ma.SQLAlchemyAutoSchema):
     """
 
     license_id = fields.String()
+    user_id = fields.String()
 
     class Meta:
         model = Metadata

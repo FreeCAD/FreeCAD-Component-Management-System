@@ -4,6 +4,8 @@ import sys
 
 from flask import has_request_context, request
 
+from ..config import Config
+
 
 class RequestFormatter(logging.Formatter):
     def format(self, record) -> str:
@@ -21,7 +23,7 @@ class BaseStreamHandler(logging.StreamHandler):
     def __init__(self) -> None:
         super().__init__()
         self.formatter = logging.Formatter("[%(levelname)s] - %(name)s : %(message)s")
-        self.level = logging.DEBUG
+        self.level = Config.LOG_LEVEL
         self.stream = sys.stderr
 
 
@@ -33,7 +35,7 @@ class BaseRotatingFileHandler(logging.handlers.RotatingFileHandler):
             maxBytes=1024 * 1024,
             encoding="utf-8",
         )
-        self.level = logging.DEBUG
+        self.level = Config.LOG_LEVEL
         self.formatter = logging.Formatter(
             "[%(asctime)s] [%(levelname)s] - %(name)s in {%(module)s}\n%(message)s"
         )

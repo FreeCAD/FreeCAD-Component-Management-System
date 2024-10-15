@@ -84,7 +84,7 @@ def _make_metadata(component, data):
         ),
     }
 
-    with contextlib.suppress(NotAcceptable):
+    with contextlib.suppress(NotAcceptable, ValueError):
         new_metadata, _ = create_meatdata(metadata_data)
         tags = _get_tags(data["components"])
         add_tags(new_metadata["id"], tags)

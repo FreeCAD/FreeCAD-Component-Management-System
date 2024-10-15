@@ -17,3 +17,4 @@ class AttributesSchema(ma.SQLAlchemyAutoSchema):
 
 attribute_schema = AttributesSchema()
 attributes_schema = AttributesSchema(many=True)
+Attribute.set_schemas(attribute_schema, attributes_schema)

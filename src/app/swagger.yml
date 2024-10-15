@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: "FreeCad Component Management API"
-  description: "An API for Component-filesanf their Metadata Database"
+  description: "An API for Component-files and their Metadata Database"
   version: "1.0.0"
 
 servers:
@@ -19,6 +19,7 @@ components:
       properties:
         label:
           type: "string"
+          maxLength: 20
 
     Filedata:
       type: "object"
@@ -30,8 +31,10 @@ components:
       properties:
         url:
           type: "string"
+          maxLength: 200
         metadata_id:
           type: "string"
+          maxLength: 64
         type:
           type: "string"
           enum:
@@ -42,6 +45,9 @@ components:
             - stp
         size:
           type: number
+          minimum: 0
+          maximum: 100000000
+          format: double
 
     Metadata:
       type: "object"
@@ -54,39 +60,58 @@ components:
       properties:
         name:
           type: "string"
+          maxLength: 50
         version:
           type: "string"
+          maxLength: 20
         maintainer:
           type: "string"
+          maxLength: 50
         author:
           type: "string"
+          maxLength: 50
         thumbnail:
           type: "string"
+          maxLength: 200
         description:
           type: "string"
+          maxLength: 500
         rating:
-          type: "number"
+          type: "integer"
+          maximum: 5
+          minimum: 0
+          format: int64
         license_id:
           type: "string"
+          maxLength: 64
 
     Tags:
       type: "array"
       additionalProperties: false
       items:
         type: "string"
-      example: ["laptop", "monitor"]
+        maxLength: 64
+      example: ["displays", "tft"]
       uniqueItems: true
+      maxItems: 64
+
+    Attribute:
+      type: "object"
+      properties:
+        key:
+          type: "string"
+          maxLength: 64
+        value:
+          type: "string"
+          maxLength: 64
+      additionalProperties: false
 
     Attributes:
       type: "array"
       additionalProperties: false
       items:
-        type: "object"
-        properties:
-          key:
-            type: "string"
-          value:
-            type: "string"
+        $ref: "#/components/schemas/Attribute"
+      maxItems: 64
 
     Component:
       type: "object"
@@ -105,31 +130,44 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/File"
+          maxItems: 10
         thumbnail_image:
           $ref: "#/components/schemas/File"
         repository:
           type: string
+          maxLength: 40
         branch:
           type: string
+          maxLength: 62
         tags:
           $ref: "#/components/schemas/Tags"
         name:
           type: "string"
+          maxLength: 50
         version:
           type: "string"
+          maxLength: 20
         maintainer:
           type: "string"
+          maxLength: 50
         author:
           type: "string"
+          maxLength: 50
         description:
           type: "string"
+          maxLength: 500
         license_id:
           type: "string"
+          maxLength: 64
+        attributes:
+          $ref: "#/components/schemas/Attributes"
 
     File:
       type: string
       additionalProperties: false
       format: binary
+      maxLength: 1048576
+
 
     ComponentFiles:
       type: object
@@ -144,25 +182,30 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/File"
+          maxItems: 10
         thumbnail_image:
           $ref: "#/components/schemas/File"
         repository:
           type: string
+          maxLength: 40
         branch:
           type: string
+          maxLength: 62
         metadata_id:
           type: string
+          maxLength: 64
 
   parameters:
 
-    search_key:
-      name: "search_key"
+    search_str:
+      name: "search_str"
       description: "Label of the tag to get"
       in: query
       required: False
       schema:
         type: "string"
         example: "cable"
+        maxLength: 100
 
     pk:
       name: "pk"
@@ -171,6 +214,7 @@ components:
       required: True
       schema:
         type: "string"
+        maxLength: 64
 
     page:
       name: "page"
@@ -180,6 +224,9 @@ components:
       schema:
         type: "integer"
         example: 2
+        maximum: 2048
+        minimum: 1
+        format: int64
 
     page_size:
       name: "page_size"
@@ -189,6 +236,9 @@ components:
       schema:
         type: "integer"
         example: 4
+        maximum: 100
+        minimum: 1
+        format: int64
 
     sort_by:
       name: "sort_by"
@@ -198,6 +248,7 @@ components:
       schema:
         type: "string"
         example: "name"
+        maxLength: 64
 
     sort_ord:
       name: "sort_ord"
@@ -220,6 +271,8 @@ components:
         type: "array"
         items:
           type: string
+          maxLength: 64
+        maxItems: 64
       # collectionFormat: multi
 
     columns:
@@ -231,6 +284,8 @@ components:
         type: "array"
         items:
           type: string
+          maxLength: 64
+        maxItems: 10
       # collectionFormat: multi
 
     file_types:
@@ -242,6 +297,8 @@ components:
         type: "array"
         items:
           type: string
+          maxLength: 64
+        maxItems: 20
       # collectionFormat: multi
 
 paths:
@@ -305,9 +362,9 @@ paths:
       tags:
         - Tags
         - Search
-      summary: "search for the lags maching label"
+      summary: "search for the tags matching label"
       parameters:
-        - $ref: "#/components/parameters/search_key"
+        - $ref: "#/components/parameters/search_str"
       responses:
         "200":
           description: "Successfully searched tags"
@@ -428,7 +485,7 @@ paths:
         - "Search"
       summary: "Read the list of all metadatas"
       parameters:
-        - $ref: "#/components/parameters/search_key"
+        - $ref: "#/components/parameters/search_str"
       responses:
         "200":
           description: "Successfully searched metadata"
@@ -567,7 +624,7 @@ paths:
       parameters:
         - $ref: "#/components/parameters/page"
         - $ref: "#/components/parameters/page_size"
-        - $ref: "#/components/parameters/search_key"
+        - $ref: "#/components/parameters/search_str"
         - $ref: "#/components/parameters/sort_by"
         - $ref: "#/components/parameters/sort_ord"
         - $ref: "#/components/parameters/file_types"
@@ -585,7 +642,11 @@ paths:
       parameters:
         - in: header
           name: X-Access-Token
-          description: "github access token"
+          description: "Github Access Token"
+          schema:
+            type: string
+        - in: header
+          name: JWT
           schema:
             type: string
       requestBody:
@@ -599,3 +660,53 @@ paths:
       responses:
         "201":
           description: "Successfully created a Component"
+
+  /component/user:
+    get:
+      operationId: "src.models.users.operations.read_user_components"
+      tags:
+        - "Component"
+        - "User"
+      summary: "Returns al the user owned components"
+      parameters:
+        - in: header
+          name: JWT
+          schema:
+            type: string
+      responses:
+        "200":
+          description: "ok"
+
+  /auth/github:
+    get:
+      operationId: "src.authentication.services.auth_with_access_token"
+      tags:
+        - "Users"
+        - "Authentications"
+      summary: "Login to the API"
+      parameters:
+        - in: header
+          name: X-Access-Token
+          description: "Github Access Token"
+          schema:
+            type: string
+      responses:
+        "200":
+          description: "Successfully logged in"
+
+  /auth/github/callback:
+    get:
+      operationId: "src.authentication.services.github_oauth_callback"
+      tags:
+        - "Users"
+        - "Authentications"
+      summary: "Login to the API with Github"
+      parameters:
+        - in: query
+          name: code
+          description: "temporary code from github"
+          schema:
+            type: string
+      responses:
+        "200":
+          description: "Successfully logged in with Github"

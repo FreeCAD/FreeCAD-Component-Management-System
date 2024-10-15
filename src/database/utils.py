@@ -21,9 +21,11 @@ from .definations import db, es
 
 
 def setup_db(app: Flask) -> None:
+    from ..models.metadatas import Metadata
+    from ..models.users import User
+    from ..models.attributes import Attribute
     from ..models.files import File
     from ..models.licenses import SPDX
-    from ..models.metadatas import Metadata
     from ..models.tags import Tag
 
     db.init_app(app)
@@ -39,6 +41,7 @@ def clear_db() -> None:
 
     db.drop_all()
     es.options(ignore_status=[400, 404]).indices.delete(index="metadatas")
+    es.options(ignore_status=[400, 404]).indices.delete(index="attributes")
 
 
 def clear_data() -> None:
@@ -49,8 +52,11 @@ def clear_data() -> None:
             None
     """
 
-    db.drop_all()
+    clear_db()
+
     db.create_all()
+    es.options(ignore_status=[400, 404]).indices.create(index="metadatas")
+    es.options(ignore_status=[400, 404]).indices.create(index="attributes")
 
 
 def pre_entry() -> None:
@@ -165,7 +171,7 @@ def make_must_query_list(search_key: str):
     return [make_fuzzy_query(value) for value in value_list]
 
 
-def make_should_query_list(search_key: str):
+def make_should_query_list(search_key: str, field: list[str]):
     """
     Creates a list of queries based on the given search key.
 
@@ -187,7 +193,7 @@ def make_should_query_list(search_key: str):
     query_list.append(
         {
             "more_like_this": {
-                "fields": ["name"],
+                "fields": field,
                 "like": search_key,
                 "min_term_freq": 1,
                 "max_query_terms": 12,
@@ -198,7 +204,7 @@ def make_should_query_list(search_key: str):
     return query_list
 
 
-def make_elasticsearch_query(search_key: str):
+def make_elasticsearch_query(search_key: str, field: list[str]):
     """
     Creates an Elasticsearch query based on the given search key.
 
@@ -217,6 +223,6 @@ def make_elasticsearch_query(search_key: str):
     return {
         "bool": {
             # "must": make_must_query_list(search_key),
-            "should": make_should_query_list(search_key),
+            "should": make_should_query_list(search_key, field),
         }
     }

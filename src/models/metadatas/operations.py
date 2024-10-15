@@ -137,7 +137,7 @@ def _create(metadata: dict) -> Metadata:
     ).one_or_none()
 
     if existing_metadata is not None:
-        abort(406, "This Metadata already exists")
+        raise ValueError(f"Metadata with name {metadata.get('name')} already exists!")
 
     logger.info(metadata)
 
@@ -376,7 +376,12 @@ def add_attributes(pk, attributes):
     if existing_metadata is None:
         abort(404, f"Metadata with id {pk} not found")
 
+    if not attributes:
+        return make_response("no attributes to add", 200)
+
     for attribute_data in attributes:
+        if not attribute_data:
+            continue
         attribute_data["metadata_id"] = pk
         new_attribute: Attribute = attribute_schema.load(attribute_data)
         new_attribute.create()

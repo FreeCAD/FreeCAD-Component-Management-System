@@ -54,3 +54,4 @@ docs/_build/
 .venv
 .vscode
 test
+app.db

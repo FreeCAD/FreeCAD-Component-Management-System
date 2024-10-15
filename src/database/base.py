@@ -219,7 +219,7 @@ class ElasticSearchBase(Base):
         self.__es.delete_by_query(index=self.__tablename__, q={field_name: value})
 
     @classmethod
-    def elasticsearch(cls, search_key: str) -> set[str]:
+    def elasticsearch(cls, index, query):
         """
         Performs an Elasticsearch search based on the specified search key and returns a set of matching names.
 
@@ -230,11 +230,10 @@ class ElasticSearchBase(Base):
             set[str]: A set of matching names.
         """
 
-        response = cls.__es.search(
-            index="metadatas",
-            query=make_elasticsearch_query(search_key),
+        return cls.__es.search(
+            index=index,
+            query=query,
         )
-        return {hit["_source"]["name"] for hit in response["hits"]["hits"]}
 
     @classmethod
     def set_schemas(

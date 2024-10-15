@@ -182,24 +182,24 @@ def upload_to_github(upload_info):
     Uploads files and a thumbnail image to a GitHub repository and updates the metadata.
 
     Args:
-            upload_info (dict): The upload information.
+                    upload_info (dict): The upload information.
 
     Returns:
-            tuple[dict, Literal[201]]: A tuple containing the response dictionary and the HTTP status code 201.
+                    tuple[dict, Literal[201]]: A tuple containing the response dictionary and the HTTP status code 201.
 
     Raises:
-            HTTPException: If the metadata with the specified ID is not found.
+                    HTTPException: If the metadata with the specified ID is not found.
 
     Example:
-            ```python
-            upload_info = {
-                    "metadata_id": 123,
-                    "branch": "main",
-                    "repository": "my-repo"
-            }
-            result = upload_to_github(upload_info)
-            print(result)
-            ```
+                    ```python
+                    upload_info = {
+                                    "metadata_id": 123,
+                                    "branch": "main",
+                                    "repository": "my-repo"
+                    }
+                    result = upload_to_github(upload_info)
+                    print(result)
+                    ```
     """
 
     files = request.files.getlist("component_files")
@@ -223,7 +223,7 @@ def upload_to_github(upload_info):
             repo,
             upload_info.get("branch"),
             file.stream.read(),
-            f"{metadata.name}/{file.filename}",
+            f"{metadata.name}/{file.filename.rsplit('/', 1)[-1]}",
         )
 
         resp, _ = create(
@@ -236,13 +236,16 @@ def upload_to_github(upload_info):
         )
         response["files"].append(resp)
 
-    content = upload_new_file(
-        repo,
-        upload_info.get("branch"),
-        thumbnail_file.stream.read(),
-        f"{metadata.name}/thumbnail{Path(thumbnail_file.filename).suffix}",
-    )
-    metadata.thumbnail = content.download_url
+    if thumbnail_file is not None:
+        content = upload_new_file(
+            repo,
+            upload_info.get("branch"),
+            thumbnail_file.stream.read(),
+            f"{metadata.name}/thumbnail{Path(thumbnail_file.filename).suffix}",
+        )
+        metadata.thumbnail = content.download_url
+    else:
+        metadata.thumbnail = None
     metadata.commit()
     response["metadata"] = metadata_schema.dump(metadata)
 

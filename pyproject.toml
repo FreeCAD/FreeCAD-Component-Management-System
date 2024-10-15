@@ -2,19 +2,21 @@
 name = "component-management-system"
 version = "0.1.0"
 description = ""
+license = "MIT"
 authors = ["Amulya Paritosh <amulya1171@gmail.com>"]
 readme = "README.md"
 packages = [{include = "src"}]
 
 [tool.poetry.dependencies]
 python = "^3.10"
-flask-sqlalchemy = "^3.0.3"
+flask-sqlalchemy = "3.0.3"
 flask-marshmallow = {version = "0.14.0", extras = ["sqlalchemy"]}
 connexion = {extras = ["swagger-ui"], version = "^2.14.2"}
 flask = "2.2.2"
 elasticsearch = "^8.8.0"
 python-dotenv = "^1.0.0"
 pygithub = "^1.59.0"
+pyjwt = "^2.8.0"
 
 
 [build-system]

@@ -10,9 +10,11 @@
 # |																|
 # --------------------------------------------------------------
 
+import logging
 import os
 
 basedir: str = os.path.abspath(os.path.dirname(__file__))
+from typing import Optional
 
 
 class Config:
@@ -38,9 +40,16 @@ class Config:
     It provides default values for various attributes used in the application.
     """
 
-    SECRET_KEY: str | None = os.environ.get("FLASK_SECRET_KEY")
-    DEBUG = True
-    TESTING = True
+    SQLALCHEMY_DATABASE_URI: str = os.environ.get("SQLALCHEMY_DATABASE_URI", "")
+    SQLALCHEMY_TRACK_MODIFICATIONS: bool = (
+        os.environ.get("SQLALCHEMY_TRACK_MODIFICATIONS", "0") == "1"
+    )
 
-    SQLALCHEMY_DATABASE_URI: str = f"sqlite:///{basedir}/app/app.db"
-    SQLALCHEMY_TRACK_MODIFICATIONS = False
+    LOG_LEVEL = logging.DEBUG
+
+    GITHUB_OAUTH_CLIENT_ID: Optional[str] = os.environ.get("GITHUB_OAUTH_CLIENT_ID")
+    GITHUB_OAUTH_CLIENT_SECRET: Optional[str] = os.environ.get(
+        "GITHUB_OAUTH_CLIENT_SECRET"
+    )
+
+    FLASK_SECRET: str = os.environ.get("FLASK_SECRET_KEY")

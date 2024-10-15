@@ -12,6 +12,7 @@
 
 from marshmallow import Schema, fields
 
+from ..attributes import AttributesSchema
 from ..files import FileSchema
 from ..licenses import SPDXSchema
 from ..metadatas import MetadataSchema
@@ -46,6 +47,7 @@ class ComponentSchema(Schema):
     license = fields.Nested(SPDXSchema)
     files = fields.Nested(FileSchema, many=True)
     tags = fields.Nested(TagSchema, many=True)
+    attributes = fields.Nested(AttributesSchema, many=True)
 
 
 component_schema = ComponentSchema()

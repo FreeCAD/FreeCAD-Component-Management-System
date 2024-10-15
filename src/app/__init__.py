@@ -43,8 +43,11 @@ def create_app(config_class=Config) -> Flask:
 
     setup_db(app)
     create_routes(app)
+
+    app.logger.name = "api"
+    app.logger.handlers.clear()
     app.logger.addHandler(FlaskHandler.StreamHandler())
     app.logger.addHandler(FlaskHandler.RotatingFileHandler())
-    app.logger.name = "api"
+    app.logger.setLevel(Config.LOG_LEVEL)
 
     return app
